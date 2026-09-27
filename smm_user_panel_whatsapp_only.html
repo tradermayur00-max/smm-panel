@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMM Panel - Complete Admin & Customer Demo</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card: #111827;
+      --card-hover: #172237;
+      --border: #1f293d;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text: #f3f4f6;
+      --muted: #94a3b8;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #26334d; border-radius: 4px; }
+    .modal-backdrop {
+      background: rgba(4, 7, 13, 0.78);
+      backdrop-filter: blur(4px);
+    }
+  </style>
+
+<script>
+(function () {
+  const isAdminEntry = window.location.pathname.endsWith('admin_users_demo_referral_100_admin_protected.html') || new URLSearchParams(window.location.search).get('admin') === '1';
+  const adminSession = sessionStorage.getItem('smm_admin_session');
+  if (isAdminEntry && adminSession !== 'authenticated') {
+    window.location.replace('admin_login.html');
+  }
+})();
+</script>
+
+
+<style id="support-buttons-css">
+.support-section {
+  margin: 18px 0;
+  padding: 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg,#f8fafc,#eef6ff);
+  border: 1px solid #e2e8f0;
+}
+.support-section h3 { margin:0 0 6px; font-size:18px; font-weight:800; }
+.support-section p { margin:0 0 14px; color:#64748b; font-size:13px; }
+.support-actions { display:flex; gap:12px; flex-wrap:wrap; }
+.support-btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:9px;
+  min-width:180px; padding:12px 18px; border-radius:12px;
+  color:#fff !important; text-decoration:none !important;
+  font-weight:700; font-size:14px; box-shadow:0 5px 14px rgba(15,23,42,.12);
+  transition:transform .15s ease, opacity .15s ease;
+}
+.support-btn:hover { transform:translateY(-2px); opacity:.94; }
+.support-wa { background:#25D366; }
+.support-icon { font-size:19px; line-height:1; }
+@media (max-width:600px) {
+  .support-btn { width:100%; min-width:0; }
+}
+</style>
+
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- TOP BAR & ROLE SWITCHER -->
+  <header class="bg-[#0e1422] border-b border-[#1f293d] sticky top-0 z-40 px-4 py-3 flex flex-wrap items-center justify-between gap-3 shadow-md">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center font-black text-white text-base shadow-lg shadow-blue-600/30">
+        SI
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-sm text-white tracking-tight">SMM INSTAGRAM PRO</span>
+          <span id="role-pill" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-900/60 text-blue-300 border border-blue-700/50">
+            ADMINISTRATOR
+          </span>
+        </div>
+        <p class="text-xs text-slate-400">Connected System: User ↔ Admin Live Sync</p>
+      </div>
+    </div>
+
+    <!-- Active User / Fast Switcher -->
+    <div class="flex items-center gap-3 bg-[#131b2e] border border-[#22304d] rounded-xl p-1.5 shadow-inner">
+      <div class="flex items-center gap-2 px-2">
+        <div id="user-avatar" class="w-7 h-7 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow">
+          AD
+        </div>
+        <div class="text-left text-xs leading-tight">
+          <div id="user-display-name" class="font-semibold text-slate-200">Master Admin</div>
+          <div id="user-balance-display" class="font-mono text-emerald-400 font-bold">₹10,540.00</div>
+        </div>
+      </div>
+
+      <div class="h-6 w-px bg-slate-700"></div>
+
+      <!-- Quick Role Toggle Button -->
+      <button onclick="toggleUserRole()" class="text-xs px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 font-medium border border-blue-500/30 transition flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        <span id="toggle-role-btn-text">Switch to Customer</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+    
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="w-full md:w-64 bg-[#0d1322] border-r border-[#1e293b] p-3 flex flex-col justify-between shrink-0">
+      <div class="space-y-6">
+        <!-- CUSTOMER PAGES -->
+        <div>
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">Customer Desk</div>
+          <nav class="space-y-1">
+            <button onclick="navigateTo('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Overview / Quick Order
+              </span>
+            </button>
+            <button onclick="navigateTo('orders')" id="nav-orders" class="nav-item w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                Your Orders
+              </span>
+              <span id="cust-orders-count-badge" class="font-mono text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">2</span>
+            </button>
+            <button onclick="navigateTo('referral')" id="nav-referral" class="nav-item w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-fuchsia-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8a4 4 0 11-8 0v8a4 4 0 108 0V8zm0 0a4 4 0 118 0v4a4 4 0 11-8 0"/></svg>
+                Referral Program
+              </span>
+              <span class="text-[10px] text-fuchsia-400 font-semibold">Earn</span>
+            </button>
+            <button onclick="navigateTo('wallet')" id="nav-wallet" class="nav-item w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                Wallet & Add Funds
+              </span>
+              <span class="text-[10px] text-emerald-400 font-semibold">4 Methods</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- ADMIN PAGES (STRICT GUARD) -->
+        <div>
+          <div class="flex items-center justify-between px-3 mb-2">
+            <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Admin Controls</span>
+            <span class="text-[9px] bg-amber-950/70 text-amber-300 border border-amber-800/50 px-1.5 py-0.2 rounded font-semibold">
+              Admin Only
+            </span>
+          </div>
+          <nav class="space-y-1">
+            <button onclick="navigateTo('admin-users')" id="nav-admin-users" class="nav-item w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                Users Data & Balances
+              </span>
+              <span id="admin-users-badge" class="font-mono text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-amber-300">5</span>
+            </button>
+            <button onclick="navigateTo('admin-orders')" id="nav-admin-orders" class="nav-item w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                All Orders & Dispatch
+              </span>
+              <span id="admin-orders-badge" class="font-mono text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">4</span>
+            </button>
+            <button onclick="navigateTo('admin-payments')" id="nav-admin-payments" class="nav-item w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Deposit Approvals
+              </span>
+              <span id="pending-deposits-badge" class="font-mono text-[10px] bg-red-900/70 text-red-300 px-1.5 py-0.5 rounded font-bold">1</span>
+            </button>
+            <button onclick="navigateTo('admin-automation')" id="nav-admin-automation" class="nav-item w-full flex items-center justify-between px-3 py-2 text-xs font-medium rounded-lg text-slate-300 hover:bg-slate-800/60 transition">
+              <span class="flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                API & Automation
+              </span>
+              <span class="text-[10px] text-emerald-400 font-semibold">v2 API</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Info footer -->
+      <div class="mt-6 pt-3 border-t border-[#1e293b] text-[11px] text-slate-500">
+        <p>Live In-Memory State</p>
+        <p class="text-[10px] text-slate-600 mt-0.5">INR (₹) Base Currency</p>
+      </div>
+    </aside>
+
+    <!-- CONTENT VIEWPORT -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 custom-scroll">
+      
+      <!-- TOAST NOTIFICATION CONTAINER -->
+      <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition duration-300 bg-slate-900 border border-slate-700 text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 max-w-sm pointer-events-none">
+        <span id="toast-icon">✅</span>
+        <span id="toast-msg">Action performed successfully.</span>
+      </div>
+
+      <!-- VIEW: REFERRAL PROGRAM -->
+      <div id="view-referral" class="hidden space-y-6">
+        <div>
+          <div class="text-[11px] font-bold text-fuchsia-400 uppercase tracking-wider">Referral Program</div>
+          <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Invite Friends & Earn Rewards</h1>
+          <p class="text-xs text-slate-400 mt-1">Share your referral link and track your invited users.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-4">
+            <span class="text-xs text-slate-400 block">Your Referral Code</span>
+            <span id="referral-code" class="text-xl font-bold font-mono text-fuchsia-400 mt-2 block">-</span>
+          </div>
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-4">
+            <span class="text-xs text-slate-400 block">Total Referrals</span>
+            <span id="referral-count" class="text-xl font-bold font-mono text-white mt-2 block">0</span>
+          </div>
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-4">
+            <span class="text-xs text-slate-400 block">Referral Earnings</span>
+            <span id="referral-earnings" class="text-xl font-bold font-mono text-emerald-400 mt-2 block">₹0.00</span>
+          </div> 
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-4">
+            <span class="text-xs text-slate-400 block">Reward Per Referral</span>
+            <span id="referral-reward-rate" class="text-xl font-bold font-mono text-amber-400 mt-2 block">₹100</span>
+          </div>
+        </div>
+
+        <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-4 md:p-5">
+          <label class="text-xs font-semibold text-slate-300">Your Referral Link</label>
+          <div class="mt-2 flex flex-col sm:flex-row gap-2">
+            <input id="referral-link" readonly class="flex-1 bg-[#0b1220] border border-[#273449] rounded-lg px-3 py-2.5 text-xs text-slate-300 outline-none" value="">
+            <button onclick="copyReferralLink()" class="px-4 py-2.5 rounded-lg bg-fuchsia-600 hover:bg-fuchsia-500 text-white text-xs font-semibold transition">Copy Link</button>
+          </div>
+          <p class="text-[10px] text-slate-500 mt-2">You earn ₹100 for each successful referral. Referral tracking and wallet crediting require backend/database implementation.</p>
+        </div>
+
+        <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-4 md:p-5">
+          <h2 class="text-sm font-bold text-white">How referrals work</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+            <div class="rounded-lg bg-slate-900/60 border border-slate-800 p-3"><div class="text-fuchsia-400 font-bold text-sm">1. Share</div><p class="text-[11px] text-slate-400 mt-1">Send your referral link to a friend.</p></div>
+            <div class="rounded-lg bg-slate-900/60 border border-slate-800 p-3"><div class="text-fuchsia-400 font-bold text-sm">2. Sign Up</div><p class="text-[11px] text-slate-400 mt-1">The friend registers through your link.</p></div>
+            <div class="rounded-lg bg-slate-900/60 border border-slate-800 p-3"><div class="text-fuchsia-400 font-bold text-sm">3. Reward</div><p class="text-[11px] text-slate-400 mt-1">You earn ₹100 for each successful referral.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 1: CUSTOMER OVERVIEW & QUICK ORDER -->
+      <div id="view-dashboard" class="space-y-6">
+        <div>
+          <div class="text-[11px] font-bold text-blue-400 uppercase tracking-wider">Customer Portal</div>
+          <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Social Media Campaign Launcher</h1>
+          <p class="text-xs text-slate-400 mt-1">Place instant orders with automatic balance verification in Indian rupees.</p>
+        </div>
+
+        <!-- Quick KPI Strip -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-3">
+            <span class="text-xs text-slate-400 block">Your Available Balance</span>
+            <span id="dash-balance" class="text-lg font-bold font-mono text-emerald-400 mt-1 block">₹250.00</span>
+            <span class="text-[10px] text-slate-500">Fixed INR Currency</span>
+          </div>
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-3">
+            <span class="text-xs text-slate-400 block">Active Orders</span>
+            <span id="dash-active-orders" class="text-lg font-bold font-mono text-blue-400 mt-1 block">1</span>
+            <span class="text-[10px] text-slate-500">In delivery progress</span>
+          </div>
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-3">
+            <span class="text-xs text-slate-400 block">Total Orders Placed</span>
+            <span id="dash-total-orders" class="text-lg font-bold font-mono text-white mt-1 block">2</span>
+            <span class="text-[10px] text-slate-500">Account lifetime</span>
+          </div>
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-3">
+            <span class="text-xs text-slate-400 block">Provider API Status</span>
+            <span class="text-lg font-bold font-mono text-emerald-400 mt-1 block flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Connected
+            </span>
+            <span class="text-[10px] text-slate-500">Latency: 118ms</span>
+          </div>
+        </div>
+
+        <!-- Quick Order Form -->
+        <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-5 shadow-lg">
+          <div class="flex items-center justify-between pb-3 border-b border-[#1f293d] mb-4">
+            <div>
+              <h2 class="text-sm font-semibold text-white">Place a New Growth Order</h2>
+              <p class="text-xs text-slate-400">Order funds are immediately deducted from your wallet balance.</p>
+            </div>
+            <button onclick="navigateTo('wallet')" class="text-xs text-blue-400 hover:text-blue-300 font-medium">
+              + Add Funds
+            </button>
+          </div>
+
+          <form onsubmit="handlePlaceOrder(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Select Service</label>
+              <select id="order-service" onchange="calculateOrderCharge()" class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500">
+                <option value="srv-1" data-rate="82" data-min="100" data-max="50000">Instagram Followers · High Quality (₹82.00 / 1k)</option>
+                <option value="srv-2" data-rate="14" data-min="50" data-max="100000">Instagram Likes · Instant Active (₹14.00 / 1k)</option>
+                <option value="srv-3" data-rate="140" data-min="500" data-max="500000">YouTube Views · High Retention (₹140.00 / 1k)</option>
+                <option value="srv-4" data-rate="95" data-min="200" data-max="20000">Telegram Channel Members · Indian Real (₹95.00 / 1k)</option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Target Post or Profile Link</label>
+                <input id="order-link" type="text" placeholder="https://instagram.com/username..." required class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-mono">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Quantity <span id="qty-helper" class="text-[11px] text-slate-500">(Min: 100 - Max: 50,000)</span></label>
+                <input id="order-qty" type="number" value="1000" min="50" step="50" oninput="calculateOrderCharge()" required class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-mono">
+              </div>
+            </div>
+
+            <!-- Charge preview banner -->
+            <div class="bg-[#0b0f19] border border-[#1f293d] rounded-lg p-3 flex items-center justify-between">
+              <div>
+                <span class="text-xs text-slate-400 block">Total Estimated Charge:</span>
+                <span id="order-total-charge" class="font-mono text-base font-bold text-blue-400">₹82.00</span>
+              </div>
+              <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs px-5 py-2.5 rounded-lg shadow-md shadow-blue-600/30 transition flex items-center gap-1.5">
+                Place Order Now →
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- VIEW 2: CUSTOMER ORDERS -->
+      <div id="view-orders" class="space-y-6 hidden">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-[11px] font-bold text-blue-400 uppercase tracking-wider">Customer Orders</div>
+            <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Your Delivery History</h1>
+            <p class="text-xs text-slate-400 mt-1">Live order tracking isolated to your signed-in account.</p>
+          </div>
+          <button onclick="navigateTo('dashboard')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3.5 py-2 rounded-lg font-medium transition">
+            + New Order
+          </button>
+        </div>
+
+        <div class="bg-[#111827] border border-[#1f293d] rounded-xl overflow-hidden shadow-lg">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-[#0b0f19] border-b border-[#1f293d] text-slate-400 font-semibold uppercase text-[10px]">
+                <tr>
+                  <th class="p-3">Order ID</th>
+                  <th class="p-3">Service</th>
+                  <th class="p-3">Target Link</th>
+                  <th class="p-3">Quantity</th>
+                  <th class="p-3">Charge</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3">Placed At</th>
+                </tr>
+              </thead>
+              <tbody id="customer-orders-tbody" class="divide-y divide-[#1f293d] text-slate-200">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 3: WALLET & 4 PAYMENT BUTTONS -->
+      <div id="view-wallet" class="space-y-6 hidden">
+        <div>
+          <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Wallet & Billing</div>
+          <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Add Funds in Indian Rupees</h1>
+          <p class="text-xs text-slate-400 mt-1">Choose between UPI/QR, Instant Payment Gateway, Crypto USDT, or Direct Bank Transfer.</p>
+        </div>
+
+        <!-- Available Balance Card -->
+        <div class="bg-gradient-to-r from-emerald-950/40 to-slate-900 border border-emerald-900/50 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-slate-400 block">Available Wallet Balance</span>
+            <span id="wallet-balance-hero" class="text-2xl font-bold font-mono text-emerald-400">₹250.00</span>
+          </div>
+          <div class="text-right text-xs text-slate-400">
+            <span class="block font-semibold text-emerald-300">0% Top-Up Fee</span>
+            <span>Instant automatic balance update</span>
+          </div>
+        </div>
+
+        <!-- 4 PAYMENT BUTTONS & TAB SELECTOR -->
+        <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-5 shadow-lg">
+          <h2 class="text-sm font-semibold text-white mb-3">Choose Payment Method:</h2>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+            <button onclick="switchPaymentTab('upi')" id="pay-btn-upi" class="pay-tab-btn flex flex-col items-center justify-center p-3 rounded-xl border bg-blue-600/20 border-blue-500 text-blue-300 font-medium text-xs transition">
+              <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+              <span>1. UPI & QR Code</span>
+              <span class="text-[9px] text-slate-400">Fastest (GPay/PhonePe)</span>
+            </button>
+            <button onclick="switchPaymentTab('gateway')" id="pay-btn-gateway" class="pay-tab-btn flex flex-col items-center justify-center p-3 rounded-xl border bg-[#0b0f19] border-[#22304d] text-slate-300 font-medium text-xs hover:border-slate-600 transition">
+              <svg class="w-5 h-5 mb-1 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+              <span>2. Instant Gateway</span>
+              <span class="text-[9px] text-slate-400">Cards / Netbanking</span>
+            </button>
+            <button onclick="switchPaymentTab('crypto')" id="pay-btn-crypto" class="pay-tab-btn flex flex-col items-center justify-center p-3 rounded-xl border bg-[#0b0f19] border-[#22304d] text-slate-300 font-medium text-xs hover:border-slate-600 transition">
+              <svg class="w-5 h-5 mb-1 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+              <span>3. USDT (TRC-20)</span>
+              <span class="text-[9px] text-slate-400">Crypto Deposit</span>
+            </button>
+            <button onclick="switchPaymentTab('bank')" id="pay-btn-bank" class="pay-tab-btn flex flex-col items-center justify-center p-3 rounded-xl border bg-[#0b0f19] border-[#22304d] text-slate-300 font-medium text-xs hover:border-slate-600 transition">
+              <svg class="w-5 h-5 mb-1 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+              <span>4. Bank IMPS / NEFT</span>
+              <span class="text-[9px] text-slate-400">Direct Wire</span>
+            </button>
+          </div>
+
+          <!-- Quick Amount Selector -->
+          <div class="mb-4">
+            <label class="block text-xs font-medium text-slate-300 mb-1.5">Select Deposit Amount (INR ₹):</label>
+            <div class="flex flex-wrap gap-2 mb-2">
+              <button onclick="setDepositAmount(50)" class="amt-chip text-xs px-3 py-1.5 rounded-lg bg-[#0b0f19] border border-[#22304d] text-slate-300 hover:border-blue-500 font-mono">₹50</button>
+              <button onclick="setDepositAmount(100)" class="amt-chip text-xs px-3 py-1.5 rounded-lg bg-[#0b0f19] border border-[#22304d] text-slate-300 hover:border-blue-500 font-mono">₹100</button>
+              <button onclick="setDepositAmount(250)" class="amt-chip text-xs px-3 py-1.5 rounded-lg bg-blue-600/20 border border-blue-500 text-blue-300 font-mono font-bold">₹250</button>
+              <button onclick="setDepositAmount(500)" class="amt-chip text-xs px-3 py-1.5 rounded-lg bg-[#0b0f19] border border-[#22304d] text-slate-300 hover:border-blue-500 font-mono">₹500</button>
+              <button onclick="setDepositAmount(1000)" class="amt-chip text-xs px-3 py-1.5 rounded-lg bg-[#0b0f19] border border-[#22304d] text-slate-300 hover:border-blue-500 font-mono">₹1,000</button>
+              <button onclick="setDepositAmount(2500)" class="amt-chip text-xs px-3 py-1.5 rounded-lg bg-[#0b0f19] border border-[#22304d] text-slate-300 hover:border-blue-500 font-mono">₹2,500</button>
+            </div>
+            <input id="deposit-amount-input" type="number" value="250" min="30" class="w-full max-w-xs bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-xs text-white font-mono font-bold">
+          </div>
+
+          <!-- TAB CONTENT 1: UPI & QR -->
+          <div id="tab-content-upi" class="space-y-4 bg-[#0b0f19] border border-[#1f293d] p-4 rounded-xl">
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+              <!-- QR Code Mock Graphic -->
+              <div class="w-28 h-28 bg-white p-2 rounded-xl shrink-0 flex flex-col items-center justify-center shadow">
+                <svg class="w-24 h-24 text-slate-900" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14 0h4v4h-4v-4zm-4 4h4v2h-4v-2zm4-4h2v2h-2v-2zm-4-4h2v2h-2v-2zm2 2h2v2h-2v-2zm-6 2h2v2h-2v-2zm4 2h2v2h-2v-2z"/>
+                </svg>
+              </div>
+              <div class="space-y-2 flex-1 text-xs">
+                <div>
+                  <span class="text-slate-400 block text-[11px]">Scan QR or Pay to Official UPI ID:</span>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span id="upi-id-text" class="font-mono text-sm font-bold text-white">smmgrowth@okaxis</span>
+                    <button onclick="copyUpiId()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-blue-400 px-2 py-0.5 rounded border border-slate-700">Copy</button>
+                  </div>
+                </div>
+                <p class="text-slate-400 text-[11px]">Scan using Google Pay, PhonePe, Paytm, or BHIM. Enter the 12-digit UTR below for instant verification.</p>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">12-Digit UPI Reference / UTR Number</label>
+              <input id="upi-utr-input" type="text" placeholder="e.g. 426819283741" maxlength="16" class="w-full bg-[#111827] border border-[#22304d] rounded-lg px-3 py-2 text-xs text-white font-mono">
+            </div>
+
+            <button onclick="submitUpiDeposit()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs py-2.5 rounded-lg shadow transition">
+              Submit Deposit Request to Admin Queue →
+            </button>
+          </div>
+
+          <!-- TAB CONTENT 2: INSTANT GATEWAY (RAZORPAY) -->
+          <div id="tab-content-gateway" class="space-y-4 bg-[#0b0f19] border border-[#1f293d] p-4 rounded-xl hidden">
+            <div class="text-xs space-y-1">
+              <h3 class="font-bold text-white text-sm">Automated Instant Gateway</h3>
+              <p class="text-slate-400">Supports Credit/Debit Cards, NetBanking, and Wallets. Funds are credited immediately upon checkout completion.</p>
+            </div>
+            <div class="p-3 bg-emerald-950/30 border border-emerald-800/40 rounded-lg text-xs text-emerald-300 flex items-center gap-2">
+              <span>⚡ Simulated Live Razorpay Instant Webhook Handler enabled.</span>
+            </div>
+            <button onclick="simulateGatewayPay()" id="btn-gateway-trigger" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs py-2.5 rounded-lg shadow transition flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <span>Pay & Credit Immediately via Gateway →</span>
+            </button>
+          </div>
+
+          <!-- TAB CONTENT 3: CRYPTO USDT -->
+          <div id="tab-content-crypto" class="space-y-4 bg-[#0b0f19] border border-[#1f293d] p-4 rounded-xl hidden">
+            <div class="text-xs space-y-1">
+              <h3 class="font-bold text-white text-sm">USDT (TRC-20) Crypto Deposit</h3>
+              <p class="text-slate-400">Network: TRON (TRC-20). Exchange Rate: 1 USDT ≈ ₹89.50</p>
+            </div>
+            <div>
+              <span class="text-slate-400 text-[11px] block">Send USDT to TRC-20 Address:</span>
+              <div class="bg-[#111827] border border-[#22304d] rounded-lg p-2 font-mono text-xs text-purple-300 break-all mt-1 flex items-center justify-between">
+                <span>TXa98qZ7KLmNp283Rtt51wYsKqm83aLpq9</span>
+                <button onclick="showToast('USDT Address copied!')" class="ml-2 bg-slate-800 px-2 py-0.5 rounded text-[10px] text-slate-300">Copy</button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">Transaction Hash (TxID)</label>
+              <input id="crypto-txid-input" type="text" placeholder="Paste TRON blockchain TxID..." class="w-full bg-[#111827] border border-[#22304d] rounded-lg px-3 py-2 text-xs text-white font-mono">
+            </div>
+            <button onclick="submitCryptoDeposit()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs py-2.5 rounded-lg shadow transition">
+              Submit Crypto Deposit Verification →
+            </button>
+          </div>
+
+          <!-- TAB CONTENT 4: BANK TRANSFER -->
+          <div id="tab-content-bank" class="space-y-4 bg-[#0b0f19] border border-[#1f293d] p-4 rounded-xl hidden">
+            <div class="text-xs space-y-2">
+              <h3 class="font-bold text-white text-sm">Direct Bank Transfer (IMPS / NEFT)</h3>
+              <div class="grid grid-cols-2 gap-2 bg-[#111827] p-3 rounded-lg border border-[#22304d] text-[11px]">
+                <div><span class="text-slate-400">Bank:</span> <strong>HDFC Bank Ltd</strong></div>
+                <div><span class="text-slate-400">Account Name:</span> <strong>SMM Growth Media</strong></div>
+                <div><span class="text-slate-400">Account No:</span> <strong class="font-mono">50200083921829</strong></div>
+                <div><span class="text-slate-400">IFSC Code:</span> <strong class="font-mono">HDFC0001092</strong></div>
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1">IMPS / Bank Reference Number</label>
+              <input id="bank-ref-input" type="text" placeholder="Enter bank transaction reference..." class="w-full bg-[#111827] border border-[#22304d] rounded-lg px-3 py-2 text-xs text-white font-mono">
+            </div>
+            <button onclick="submitBankDeposit()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs py-2.5 rounded-lg shadow transition">
+              Submit Bank Transfer Verification →
+            </button>
+          </div>
+        </div>
+
+        <!-- YOUR SUBMITTED DEPOSIT REQUESTS -->
+        <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-5 shadow-lg">
+          <h2 class="text-sm font-semibold text-white mb-3">Your Deposit Requests Status</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-[#0b0f19] border-b border-[#1f293d] text-slate-400 uppercase text-[10px]">
+                <tr>
+                  <th class="p-2.5">Deposit ID</th>
+                  <th class="p-2.5">Method</th>
+                  <th class="p-2.5">Amount</th>
+                  <th class="p-2.5">UTR / Reference</th>
+                  <th class="p-2.5">Date</th>
+                  <th class="p-2.5">Status</th>
+                </tr>
+              </thead>
+              <tbody id="user-deposits-tbody" class="divide-y divide-[#1f293d] text-slate-200">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 4: ADMIN USERS DATA (ADMIN ONLY) -->
+      <div id="view-admin-users" class="space-y-6 hidden">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Admin Data Center</div>
+            <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Users Data & Balance Controls</h1>
+            <p class="text-xs text-slate-400 mt-1">Full access to customer profiles, direct wallet balance adjustments, and placed order logs.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="adminLogout()" class="bg-red-600/20 hover:bg-red-600/30 text-red-300 text-xs px-3 py-2 rounded-lg font-medium border border-red-700/50 flex items-center gap-1.5 transition">
+              Admin Logout
+            </button>
+            <button onclick="exportUsersCsv()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-2 rounded-lg font-medium border border-slate-700 flex items-center gap-1.5 transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Export CSV
+            </button>
+            <button onclick="openAddUserModal()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3.5 py-2 rounded-lg font-semibold flex items-center gap-1.5 transition shadow">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Add New User
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI Summary -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-3">
+            <span class="text-xs text-slate-400 block">Total Registered Users</span>
+            <span id="kpi-total-users" class="text-lg font-bold font-mono text-white mt-1 block">5</span>
+            <span class="text-[10px] text-emerald-400">4 Active Accounts</span>
+          </div>
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-3">
+            <span class="text-xs text-slate-400 block">Total Platform Balances</span>
+            <span id="kpi-total-balances" class="text-lg font-bold font-mono text-emerald-400 mt-1 block">₹12,480.00</span>
+            <span class="text-[10px] text-slate-500">In customer wallets</span>
+          </div>
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-3">
+            <span class="text-xs text-slate-400 block">Platform Lifetime Spend</span>
+            <span id="kpi-total-spend" class="text-lg font-bold font-mono text-blue-400 mt-1 block">₹41,200.00</span>
+            <span class="text-[10px] text-slate-500">Across all orders</span>
+          </div>
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-3">
+            <span class="text-xs text-slate-400 block">Pending Deposit Approvals</span>
+            <span id="kpi-pending-deposits" class="text-lg font-bold font-mono text-amber-400 mt-1 block">1</span>
+            <span class="text-[10px] text-amber-300">Requires verification</span>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-4 shadow-lg space-y-3">
+          <div class="flex flex-col sm:flex-row items-center gap-3">
+            <div class="relative flex-1 w-full">
+              <svg class="w-4 h-4 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input id="user-search-input" oninput="renderAdminUsers()" type="search" placeholder="Search customer by name, email, or user ID..." class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+            </div>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <select id="user-status-filter" onchange="renderAdminUsers()" class="bg-[#0b0f19] border border-[#22304d] rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none">
+                <option value="All">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
+                <option value="Invited">Invited</option>
+              </select>
+
+              <select id="user-sort-filter" onchange="renderAdminUsers()" class="bg-[#0b0f19] border border-[#22304d] rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none">
+                <option value="default">Sort: Default</option>
+                <option value="balance-high">Highest Balance</option>
+                <option value="spend-high">Highest Spend</option>
+                <option value="orders-high">Most Orders</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- USERS TABLE -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-[#0b0f19] border-b border-[#1f293d] text-slate-400 uppercase text-[10px]">
+                <tr>
+                  <th class="p-3">User Profile</th>
+                  <th class="p-3">Role</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3">Wallet Balance</th>
+                  <th class="p-3">Orders</th>
+                  <th class="p-3">Total Spent</th>
+                  <th class="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-tbody" class="divide-y divide-[#1f293d] text-slate-200">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 5: ADMIN ALL ORDERS & DISPATCH (ADMIN ONLY) -->
+      <div id="view-admin-orders" class="space-y-6 hidden">
+        <div>
+          <div class="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Platform Operations</div>
+          <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">All Orders & Status Dispatch</h1>
+          <p class="text-xs text-slate-400 mt-1">Platform-wide order ledger. Setting status to <strong>Canceled</strong> automatically refunds 100% of the charge back to customer wallet.</p>
+        </div>
+
+        <div class="bg-[#111827] border border-[#1f293d] rounded-xl overflow-hidden shadow-lg">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-[#0b0f19] border-b border-[#1f293d] text-slate-400 uppercase text-[10px]">
+                <tr>
+                  <th class="p-3">Order ID</th>
+                  <th class="p-3">Customer</th>
+                  <th class="p-3">Service</th>
+                  <th class="p-3">Target Link</th>
+                  <th class="p-3">Quantity</th>
+                  <th class="p-3">Charge</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3 text-right">Dispatch Control</th>
+                </tr>
+              </thead>
+              <tbody id="admin-orders-tbody" class="divide-y divide-[#1f293d] text-slate-200">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 6: ADMIN DEPOSIT APPROVALS & GATEWAY SETTINGS (ADMIN ONLY) -->
+      <div id="view-admin-payments" class="space-y-6 hidden">
+        <div>
+          <div class="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Financial Operations</div>
+          <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">Deposit Approvals Ledger</h1>
+          <p class="text-xs text-slate-400 mt-1">Approve manual customer deposits (UPI / QR / Crypto / Bank). Approving automatically credits the user's wallet live!</p>
+        </div>
+
+        <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-5 shadow-lg">
+          <h2 class="text-sm font-semibold text-white mb-3">Incoming Deposit Requests:</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-[#0b0f19] border-b border-[#1f293d] text-slate-400 uppercase text-[10px]">
+                <tr>
+                  <th class="p-3">Deposit ID</th>
+                  <th class="p-3">Customer</th>
+                  <th class="p-3">Method</th>
+                  <th class="p-3">Amount</th>
+                  <th class="p-3">Reference / UTR</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-deposits-tbody" class="divide-y divide-[#1f293d] text-slate-200">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Gateway Settings -->
+        <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-5 shadow-lg space-y-4">
+          <h2 class="text-sm font-semibold text-white">Payment Gateway Configuration</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1">Official Business UPI ID</label>
+              <input id="cfg-upi-id" type="text" value="smmgrowth@okaxis" class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Razorpay Key ID</label>
+              <input id="cfg-rzp-key" type="text" value="rzp_live_k8919248a91" class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">USDT TRC-20 Wallet Address</label>
+              <input id="cfg-crypto-addr" type="text" value="TXa98qZ7KLmNp283Rtt51wYsKqm83aLpq9" class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-white font-mono">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Minimum Top-up (INR ₹)</label>
+              <input id="cfg-min-deposit" type="number" value="30" class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-white font-mono">
+            </div>
+          </div>
+          <div class="flex justify-end">
+            <button onclick="saveGatewaySettings()" class="bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs px-4 py-2 rounded-lg transition">
+              Save Gateway Settings
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 7: ADMIN API & AUTOMATION (ADMIN ONLY) -->
+      <div id="view-admin-automation" class="space-y-6 hidden">
+        <div>
+          <div class="text-[11px] font-bold text-purple-400 uppercase tracking-wider">Automated Backend</div>
+          <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight">SMM Provider API & Automation</h1>
+          <p class="text-xs text-slate-400 mt-1">Connect standard SMM Provider API v2 to auto-forward customer orders and sync delivery status.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Connection Box -->
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-5 shadow-lg space-y-4">
+            <h2 class="text-sm font-semibold text-white flex items-center justify-between">
+              <span>Provider API v2 Credentials</span>
+              <span class="text-[10px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800">Connected</span>
+            </h2>
+
+            <div class="space-y-3 text-xs">
+              <div>
+                <label class="block text-slate-400 mb-1">Provider API URL</label>
+                <input id="api-url" type="text" value="https://justdata.com/api/v2" class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-white font-mono">
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1">API Secret Key</label>
+                <input id="api-key" type="password" value="sk_live_99a81bc9204fa1820" class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-white font-mono">
+              </div>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+              <button onclick="testApiPing()" id="btn-ping" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white text-xs py-2 rounded-lg font-medium transition">
+                ⚡ Test Ping Connection
+              </button>
+              <button onclick="syncServicesCatalog()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs py-2 rounded-lg font-medium border border-slate-700 transition">
+                🔄 Sync 4 Catalog Services
+              </button>
+            </div>
+          </div>
+
+          <!-- Automation switches -->
+          <div class="bg-[#111827] border border-[#1f293d] rounded-xl p-5 shadow-lg space-y-4">
+            <h2 class="text-sm font-semibold text-white">Automation Triggers</h2>
+            <div class="space-y-3 text-xs">
+              <div class="flex items-center justify-between p-2.5 bg-[#0b0f19] rounded-lg border border-[#1f293d]">
+                <div>
+                  <strong class="text-white block">Auto-Forward Orders to Provider</strong>
+                  <span class="text-[11px] text-slate-400">When placed by customer, call <code>action=add</code> instantly.</span>
+                </div>
+                <input type="checkbox" checked class="w-4 h-4 accent-purple-600">
+              </div>
+
+              <div class="flex items-center justify-between p-2.5 bg-[#0b0f19] rounded-lg border border-[#1f293d]">
+                <div>
+                  <strong class="text-white block">Auto-Sync Order Status (5m Cron)</strong>
+                  <span class="text-[11px] text-slate-400">Regularly poll provider for delivery completion.</span>
+                </div>
+                <input type="checkbox" checked class="w-4 h-4 accent-purple-600">
+              </div>
+
+              <div class="flex items-center justify-between p-2.5 bg-[#0b0f19] rounded-lg border border-[#1f293d]">
+                <div>
+                  <strong class="text-white block">Auto-Refund Canceled Orders</strong>
+                  <span class="text-[11px] text-slate-400">If provider fails or cancels, 100% wallet refund triggered.</span>
+                </div>
+                <input type="checkbox" checked class="w-4 h-4 accent-purple-600">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 8: ACCESS RESTRICTED (ADMIN ONLY GUARD) -->
+      <div id="view-access-restricted" class="space-y-6 hidden max-w-lg mx-auto py-12 text-center">
+        <div class="w-16 h-16 bg-red-900/30 border border-red-700/50 rounded-2xl flex items-center justify-center mx-auto text-red-400 mb-4 shadow-xl">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <span class="text-xs font-bold uppercase tracking-wider text-red-400 bg-red-950/60 px-3 py-1 rounded-full border border-red-800">
+          Strict Security · Access Restricted
+        </span>
+        <h2 class="text-2xl font-bold text-white mt-3">Administrator Access Only</h2>
+        <p class="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
+          You are currently signed in as a <strong class="text-slate-200">Customer account</strong>. 
+          Customer accounts are strictly blocked from accessing admin pages, user records, and financial controls.
+        </p>
+
+        <div class="flex items-center justify-center gap-3 pt-4">
+          <button onclick="toggleUserRole()" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs px-4 py-2.5 rounded-lg shadow-lg shadow-blue-600/30 transition">
+            Log In as Master Admin →
+          </button>
+          <button onclick="navigateTo('dashboard')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-4 py-2.5 rounded-lg border border-slate-700 transition">
+            Back to Customer Desk
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- INSPECT USER MODAL -->
+  <div id="modal-inspect-user" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
+    <div class="bg-[#111827] border border-[#22304d] rounded-2xl max-w-lg w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[#1f293d]">
+        <div class="flex items-center gap-3">
+          <div id="inspect-avatar" class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-sm shadow">
+            RS
+          </div>
+          <div>
+            <h3 id="inspect-name" class="font-bold text-white text-base leading-tight">Rahul Sharma</h3>
+            <span id="inspect-email" class="text-xs text-slate-400">rahul@example.com</span>
+          </div>
+        </div>
+        <button onclick="closeInspectModal()" class="text-slate-400 hover:text-white p-1">✕</button>
+      </div>
+
+      <!-- Quick KPI Strip inside modal -->
+      <div class="grid grid-cols-3 gap-2 text-center py-2 bg-[#0b0f19] rounded-xl border border-[#1f293d]">
+        <div>
+          <span class="text-[10px] text-slate-400 block">Balance</span>
+          <span id="inspect-kpi-balance" class="font-mono text-sm font-bold text-emerald-400">₹250.00</span>
+        </div>
+        <div>
+          <span class="text-[10px] text-slate-400 block">Lifetime Spend</span>
+          <span id="inspect-kpi-spent" class="font-mono text-sm font-bold text-blue-400">₹420.00</span>
+        </div>
+        <div>
+          <span class="text-[10px] text-slate-400 block">Orders</span>
+          <span id="inspect-kpi-orders" class="font-mono text-sm font-bold text-white">2</span>
+        </div>
+      </div>
+
+      <!-- Direct Balance Credit/Debit Form -->
+      <div class="space-y-3 bg-[#0b0f19] p-3.5 rounded-xl border border-[#1f293d]">
+        <span class="text-xs font-bold text-slate-300 block">Adjust Wallet Balance Directly:</span>
+        <div class="flex gap-2">
+          <button type="button" onclick="setAdjustType('Credit')" id="btn-adj-credit" class="flex-1 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold">
+            + Credit (Add)
+          </button>
+          <button type="button" onclick="setAdjustType('Debit')" id="btn-adj-debit" class="flex-1 py-1.5 rounded-lg bg-slate-800 text-slate-400 text-xs font-semibold">
+            - Debit (Deduct)
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">Amount (INR ₹)</label>
+            <input id="inspect-adj-amount" type="number" value="100" min="1" class="w-full bg-[#111827] border border-[#22304d] rounded-lg px-2.5 py-1.5 text-white font-mono">
+          </div>
+          <div>
+            <label class="text-[11px] text-slate-400 block mb-1">Audit Reason</label>
+            <input id="inspect-adj-reason" type="text" placeholder="e.g. Manual UPI deposit" class="w-full bg-[#111827] border border-[#22304d] rounded-lg px-2.5 py-1.5 text-white">
+          </div>
+        </div>
+
+        <button onclick="applyBalanceAdjustment()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs py-2 rounded-lg transition shadow">
+          Apply Balance Adjustment Now
+        </button>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t border-[#1f293d]">
+        <button onclick="closeInspectModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-4 py-2 rounded-lg font-medium">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD USER MODAL -->
+  <div id="modal-add-user" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
+    <div class="bg-[#111827] border border-[#22304d] rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-[#1f293d]">
+        <h3 class="font-bold text-white text-base">Add New Customer Account</h3>
+        <button onclick="closeAddUserModal()" class="text-slate-400 hover:text-white p-1">✕</button>
+      </div>
+
+      <form onsubmit="handleCreateUser(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 mb-1">Customer Full Name</label>
+          <input id="new-user-name" type="text" required placeholder="e.g. Aman Gupta" class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-white">
+        </div>
+        <div>
+          <label class="block text-slate-300 mb-1">Email Address</label>
+          <input id="new-user-email" type="email" required placeholder="aman@example.com" class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 mb-1">Role</label>
+            <select id="new-user-role" class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-white">
+              <option value="Member">Member (Customer)</option>
+              <option value="Manager">Manager</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 mb-1">Initial Balance (₹)</label>
+            <input id="new-user-balance" type="number" value="100" min="0" class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-white font-mono">
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-300 mb-1">Phone Number (Optional)</label>
+          <input id="new-user-phone" type="text" placeholder="+91 98765 43210" class="w-full bg-[#0b0f19] border border-[#22304d] rounded-lg px-3 py-2 text-white">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-[#1f293d]">
+          <button type="button" onclick="closeAddUserModal()" class="bg-slate-800 text-slate-300 px-3.5 py-2 rounded-lg">Cancel</button>
+          <button type="submit" class="bg-amber-600 hover:bg-amber-500 text-white font-semibold px-4 py-2 rounded-lg">Create Customer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT STATE ENGINE -->
+  <script>
+    // Platform State
+    const STATE = {
+      currentUserIndex: 0, // 0 = Admin, 1 = Customer
+      currentView: 'dashboard',
+      adjustType: 'Credit',
+      selectedInspectUser: null,
+      users: [
+        { id: 'ADM-001', name: 'Master Admin', email: 'admin@smm.com', role: 'Admin', status: 'Active', balance: 10540, orders: 18, spent: 4890, phone: '+91 99999 88888' },
+        { id: 'USR-041', name: 'Rahul Sharma', email: 'ops@northstarsocial.co', role: 'Member', status: 'Active', balance: 250, orders: 2, spent: 420, phone: '+91 98765 43210' },
+        { id: 'USR-042', name: 'Pooja Verma', email: 'pooja@creatorpulse.in', role: 'Member', status: 'Active', balance: 840, orders: 6, spent: 1250, phone: '+91 98111 22334' },
+        { id: 'USR-043', name: 'Viral Spark Agency', email: 'growth@viralspark.io', role: 'Manager', status: 'Active', balance: 120, orders: 12, spent: 3400, phone: '+91 97222 33445' },
+        { id: 'USR-044', name: 'Rohan Mehra', email: 'rohan@trendboost.com', role: 'Member', status: 'Suspended', balance: 15, orders: 1, spent: 82, phone: '+91 96333 44556' }
+      ],
+      orders: [
+        { id: 'ORD-9104', userId: 'USR-041', userName: 'Rahul Sharma', serviceId: 'srv-1', serviceName: 'Instagram Followers (HQ)', network: 'Instagram', link: 'https://instagram.com/rahul_travels', quantity: 1000, charge: 82.00, status: 'Processing', createdAt: '10 mins ago' },
+        { id: 'ORD-8921', userId: 'USR-041', userName: 'Rahul Sharma', serviceId: 'srv-2', serviceName: 'Instagram Likes (Active)', network: 'Instagram', link: 'https://instagram.com/p/C9f83a', quantity: 2000, charge: 28.00, status: 'Completed', createdAt: 'Yesterday' },
+        { id: 'ORD-8812', userId: 'USR-042', userName: 'Pooja Verma', serviceId: 'srv-3', serviceName: 'YouTube Views (Retention)', network: 'YouTube', link: 'https://youtube.com/watch?v=demo', quantity: 5000, charge: 700.00, status: 'Processing', createdAt: '2 hours ago' },
+        { id: 'ORD-8700', userId: 'USR-043', userName: 'Viral Spark Agency', serviceId: 'srv-4', serviceName: 'Telegram Members (Indian)', network: 'Telegram', link: 'https://t.me/deals_hub', quantity: 2000, charge: 190.00, status: 'Completed', createdAt: '3 days ago' }
+      ],
+      deposits: [
+        { id: 'DEP-401', userId: 'USR-041', userName: 'Rahul Sharma', method: 'UPI', amount: 500, referenceId: '426819283741', status: 'Pending', createdAt: '12 mins ago' },
+        { id: 'DEP-398', userId: 'USR-042', userName: 'Pooja Verma', method: 'Razorpay', amount: 1000, referenceId: 'pay_Nq981kLz81', status: 'Approved', createdAt: '1 day ago' },
+        { id: 'DEP-390', userId: 'USR-041', userName: 'Rahul Sharma', method: 'UPI', amount: 250, referenceId: '419820194827', status: 'Approved', createdAt: '3 days ago' }
+      ]
+    };
+
+    // Separate Admin Access
+    const ADMIN_MODE = new URLSearchParams(window.location.search).get('admin') === '1';
+    if (ADMIN_MODE && sessionStorage.getItem('smm_admin_session') === 'authenticated') {
+      STATE.currentUserIndex = 0;
+      STATE.currentView = 'admin-users';
+    }
+
+    function adminLogout() {
+      sessionStorage.removeItem('smm_admin_session');
+      window.location.replace('admin_login.html');
+    }
+
+    function getCurrentUser() {
+      return STATE.users[STATE.currentUserIndex];
+    }
+
+    // Role switching
+    function toggleUserRole() {
+      STATE.currentUserIndex = STATE.currentUserIndex === 0 ? 1 : 0;
+      const user = getCurrentUser();
+      const isAdmin = user.role === 'Admin';
+
+      document.getElementById('role-pill').innerText = isAdmin ? 'ADMINISTRATOR' : 'CUSTOMER';
+      document.getElementById('role-pill').className = isAdmin 
+        ? 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-900/60 text-blue-300 border border-blue-700/50'
+        : 'text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-900/60 text-emerald-300 border border-emerald-700/50';
+
+      document.getElementById('user-display-name').innerText = user.name;
+      document.getElementById('user-avatar').innerText = user.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+      document.getElementById('user-avatar').className = isAdmin ? 'w-7 h-7 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow' : 'w-7 h-7 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow';
+      document.getElementById('user-balance-display').innerText = `₹${user.balance.toFixed(2)}`;
+
+      document.getElementById('toggle-role-btn-text').innerText = isAdmin ? 'Switch to Customer' : 'Switch to Admin';
+
+      showToast(`Switched account to: ${user.name} (${user.role})`);
+
+      // If currently on an admin page as customer, guard it!
+      if (!isAdmin && ['admin-users', 'admin-orders', 'admin-payments', 'admin-automation'].includes(STATE.currentView)) {
+        navigateTo('admin-users');
+      } else {
+        renderAllViews();
+      }
+    }
+
+    // Navigation with Strict Guard
+    function navigateTo(viewId) {
+      const user = getCurrentUser();
+      const isAdmin = user.role === 'Admin' || user.role === 'Owner';
+      const adminViews = ['admin-users', 'admin-orders', 'admin-payments', 'admin-automation'];
+
+      // Check access
+      if (adminViews.includes(viewId) && !isAdmin) {
+        // Strict Block screen!
+        document.querySelectorAll('main > div').forEach(el => el.classList.add('hidden'));
+        document.getElementById('view-access-restricted').classList.remove('hidden');
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('bg-blue-600/20', 'text-blue-300', 'font-semibold'));
+        STATE.currentView = viewId;
+        return;
+      }
+
+      STATE.currentView = viewId;
+      document.querySelectorAll('main > div').forEach(el => el.classList.add('hidden'));
+      const activeEl = document.getElementById(`view-${viewId}`);
+      if (activeEl) activeEl.classList.remove('hidden');
+
+      // Highlight nav
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('bg-blue-600/20', 'text-blue-300', 'font-semibold'));
+      const navBtn = document.getElementById(`nav-${viewId}`);
+      if (navBtn) navBtn.classList.add('bg-blue-600/20', 'text-blue-300', 'font-semibold');
+
+      renderAllViews();
+    }
+
+
+    function getReferralCode(user) {
+      return `REF-${String(user.id).replace(/[^A-Z0-9]/gi, '').slice(-6).toUpperCase()}`;
+    }
+
+    const REFERRAL_REWARD = 100; // ₹100 earned for each successful referral
+
+    function renderReferral() {
+      const user = getCurrentUser();
+      const code = getReferralCode(user);
+      const base = window.location.origin && window.location.origin !== 'null' ? window.location.origin : window.location.href.split('?')[0];
+      const link = `${base}?ref=${encodeURIComponent(code)}`;
+      document.getElementById('referral-code').innerText = code;
+      document.getElementById('referral-link').value = link;
+      // Referral reward: ₹100 for every successful referral.
+      // The referral count still needs backend/database tracking in production.
+      const referrals = Number(user.referrals || 0);
+      const earnings = referrals * REFERRAL_REWARD;
+      document.getElementById('referral-count').innerText = referrals;
+      document.getElementById('referral-earnings').innerText = `₹${earnings.toFixed(2)}`;
+
+      const rewardText = document.getElementById('referral-reward-rate');
+      if (rewardText) rewardText.innerText = `₹${REFERRAL_REWARD} per successful referral`;
+    }
+
+    async function copyReferralLink() {
+      const input = document.getElementById('referral-link');
+      try {
+        await navigator.clipboard.writeText(input.value);
+      } catch (e) {
+        input.select();
+        document.execCommand('copy');
+      }
+      showToast('Referral link copied.');
+    }
+
+    // Render all views
+    function renderAllViews() {
+      const user = getCurrentUser();
+      document.getElementById('user-balance-display').innerText = `₹${user.balance.toFixed(2)}`;
+      document.getElementById('dash-balance').innerText = `₹${user.balance.toFixed(2)}`;
+      document.getElementById('wallet-balance-hero').innerText = `₹${user.balance.toFixed(2)}`;
+
+      renderCustomerOrders();
+      renderReferral();
+      renderUserDeposits();
+      renderAdminUsers();
+      renderAdminOrders();
+      renderAdminDeposits();
+
+      // Update counters
+      const userOrders = STATE.orders.filter(o => o.userId === user.id);
+      document.getElementById('cust-orders-count-badge').innerText = userOrders.length;
+      document.getElementById('dash-total-orders').innerText = userOrders.length;
+      document.getElementById('dash-active-orders').innerText = userOrders.filter(o => o.status === 'Processing').length;
+
+      const pendingDeps = STATE.deposits.filter(d => d.status === 'Pending').length;
+      document.getElementById('pending-deposits-badge').innerText = pendingDeps;
+      document.getElementById('kpi-pending-deposits').innerText = pendingDeps;
+      document.getElementById('admin-orders-badge').innerText = STATE.orders.length;
+      document.getElementById('admin-users-badge').innerText = STATE.users.length;
+    }
+
+    // Place Order
+    function calculateOrderCharge() {
+      const select = document.getElementById('order-service');
+      const opt = select.options[select.selectedIndex];
+      const rate = Number(opt.dataset.rate);
+      const qty = Number(document.getElementById('order-qty').value) || 0;
+      const charge = (rate * qty / 1000).toFixed(2);
+      document.getElementById('order-total-charge').innerText = `₹${charge}`;
+    }
+
+    function handlePlaceOrder(e) {
+      e.preventDefault();
+      const user = getCurrentUser();
+      const select = document.getElementById('order-service');
+      const opt = select.options[select.selectedIndex];
+      const rate = Number(opt.dataset.rate);
+      const qty = Number(document.getElementById('order-qty').value);
+      const link = document.getElementById('order-link').value.trim();
+      const charge = Number((rate * qty / 1000).toFixed(2));
+
+      if (user.balance < charge) {
+        showToast(`❌ Insufficient balance (Need ₹${charge}, have ₹${user.balance.toFixed(2)}). Please add funds!`);
+        navigateTo('wallet');
+        return;
+      }
+
+      // Deduct balance
+      user.balance -= charge;
+      user.orders += 1;
+      user.spent += charge;
+
+      // Add order
+      const newOrder = {
+        id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
+        userId: user.id,
+        userName: user.name,
+        serviceId: select.value,
+        serviceName: opt.text.split('(')[0].trim(),
+        network: opt.text.split(' ')[0],
+        link: link,
+        quantity: qty,
+        charge: charge,
+        status: 'Processing',
+        createdAt: 'Just now'
+      };
+
+      STATE.orders.unshift(newOrder);
+      document.getElementById('order-link').value = '';
+      showToast(`✅ Order ${newOrder.id} placed! ₹${charge} deducted.`);
+      renderAllViews();
+      navigateTo('orders');
+    }
+
+    // Render customer orders
+    function renderCustomerOrders() {
+      const user = getCurrentUser();
+      const tbody = document.getElementById('customer-orders-tbody');
+      const filtered = user.role === 'Admin' ? STATE.orders : STATE.orders.filter(o => o.userId === user.id);
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">No orders placed yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(o => `
+        <tr class="hover:bg-slate-800/30">
+          <td class="p-3 font-mono font-bold text-blue-400">${o.id}</td>
+          <td class="p-3 font-medium text-white">${o.serviceName}</td>
+          <td class="p-3 text-slate-300 font-mono text-[11px] max-w-[140px] truncate" title="${o.link}">${o.link}</td>
+          <td class="p-3 font-mono">${o.quantity.toLocaleString()}</td>
+          <td class="p-3 font-mono font-bold">₹${o.charge.toFixed(2)}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${
+              o.status === 'Completed' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
+              o.status === 'Processing' ? 'bg-blue-950 text-blue-300 border border-blue-800' :
+              o.status === 'Canceled' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-slate-800 text-slate-300'
+            }">${o.status}</span>
+          </td>
+          <td class="p-3 text-slate-400 text-[11px]">${o.createdAt}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Payment switcher
+    function switchPaymentTab(tab) {
+      ['upi', 'gateway', 'crypto', 'bank'].forEach(t => {
+        document.getElementById(`tab-content-${t}`).classList.add('hidden');
+        document.getElementById(`pay-btn-${t}`).className = 'pay-tab-btn flex flex-col items-center justify-center p-3 rounded-xl border bg-[#0b0f19] border-[#22304d] text-slate-300 font-medium text-xs hover:border-slate-600 transition';
+      });
+      document.getElementById(`tab-content-${tab}`).classList.remove('hidden');
+      document.getElementById(`pay-btn-${tab}`).className = 'pay-tab-btn flex flex-col items-center justify-center p-3 rounded-xl border bg-blue-600/20 border-blue-500 text-blue-300 font-medium text-xs transition';
+    }
+
+    function setDepositAmount(amt) {
+      document.getElementById('deposit-amount-input').value = amt;
+      document.querySelectorAll('.amt-chip').forEach(btn => {
+        btn.className = btn.innerText === `₹${amt}`
+          ? 'amt-chip text-xs px-3 py-1.5 rounded-lg bg-blue-600/20 border border-blue-500 text-blue-300 font-mono font-bold'
+          : 'amt-chip text-xs px-3 py-1.5 rounded-lg bg-[#0b0f19] border border-[#22304d] text-slate-300 hover:border-blue-500 font-mono';
+      });
+    }
+
+    function copyUpiId() {
+      const upi = document.getElementById('upi-id-text').innerText;
+      navigator.clipboard.writeText(upi);
+      showToast('UPI ID copied: ' + upi);
+    }
+
+    // Submit UPI Deposit
+    function submitUpiDeposit() {
+      const user = getCurrentUser();
+      const amt = Number(document.getElementById('deposit-amount-input').value) || 0;
+      const utr = document.getElementById('upi-utr-input').value.trim();
+
+      if (amt < 30) {
+        showToast('❌ Minimum top-up is ₹30');
+        return;
+      }
+      if (!utr) {
+        showToast('❌ Please enter 12-digit UTR number');
+        return;
+      }
+
+      const dep = {
+        id: `DEP-${Math.floor(100 + Math.random() * 900)}`,
+        userId: user.id,
+        userName: user.name,
+        method: 'UPI',
+        amount: amt,
+        referenceId: utr,
+        status: 'Pending',
+        createdAt: 'Just now'
+      };
+
+      STATE.deposits.unshift(dep);
+      document.getElementById('upi-utr-input').value = '';
+      showToast(`✅ Deposit request ${dep.id} for ₹${amt} queued! Switch to Admin to verify & approve.`);
+      renderAllViews();
+    }
+
+    // Instant Razorpay simulation
+    function simulateGatewayPay() {
+      const user = getCurrentUser();
+      const amt = Number(document.getElementById('deposit-amount-input').value) || 0;
+      const btn = document.getElementById('btn-gateway-trigger');
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="animate-spin inline-block mr-2">⏳</span> Verifying Gateway Transaction...`;
+
+      setTimeout(() => {
+        user.balance += amt;
+        const dep = {
+          id: `DEP-${Math.floor(100 + Math.random() * 900)}`,
+          userId: user.id,
+          userName: user.name,
+          method: 'Razorpay',
+          amount: amt,
+          referenceId: `pay_${Math.random().toString(36).substring(7)}`,
+          status: 'Approved',
+          createdAt: 'Just now'
+        };
+        STATE.deposits.unshift(dep);
+        btn.disabled = false;
+        btn.innerHTML = `<span>Pay & Credit Immediately via Gateway →</span>`;
+        showToast(`⚡ Instant Payment Verified! ₹${amt} added to your wallet.`);
+        renderAllViews();
+      }, 1000);
+    }
+
+    function submitCryptoDeposit() {
+      const user = getCurrentUser();
+      const amt = Number(document.getElementById('deposit-amount-input').value) || 0;
+      const txid = document.getElementById('crypto-txid-input').value.trim();
+      if (!txid) { showToast('❌ Paste USDT TxID'); return; }
+
+      STATE.deposits.unshift({
+        id: `DEP-${Math.floor(100 + Math.random() * 900)}`,
+        userId: user.id,
+        userName: user.name,
+        method: 'USDT (TRC20)',
+        amount: amt,
+        referenceId: txid.slice(0, 16) + '...',
+        status: 'Pending',
+        createdAt: 'Just now'
+      });
+      document.getElementById('crypto-txid-input').value = '';
+      showToast('✅ USDT deposit submitted for Admin validation.');
+      renderAllViews();
+    }
+
+    function submitBankDeposit() {
+      const user = getCurrentUser();
+      const amt = Number(document.getElementById('deposit-amount-input').value) || 0;
+      const ref = document.getElementById('bank-ref-input').value.trim();
+      if (!ref) { showToast('❌ Enter bank reference number'); return; }
+
+      STATE.deposits.unshift({
+        id: `DEP-${Math.floor(100 + Math.random() * 900)}`,
+        userId: user.id,
+        userName: user.name,
+        method: 'Bank IMPS',
+        amount: amt,
+        referenceId: ref,
+        status: 'Pending',
+        createdAt: 'Just now'
+      });
+      document.getElementById('bank-ref-input').value = '';
+      showToast('✅ Bank transfer submitted for Admin validation.');
+      renderAllViews();
+    }
+
+    // Render user deposits
+    function renderUserDeposits() {
+      const user = getCurrentUser();
+      const tbody = document.getElementById('user-deposits-tbody');
+      const filtered = STATE.deposits.filter(d => d.userId === user.id);
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">No deposit requests submitted yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(d => `
+        <tr class="hover:bg-slate-800/30">
+          <td class="p-2.5 font-mono font-bold text-slate-200">${d.id}</td>
+          <td class="p-2.5"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 font-semibold">${d.method}</span></td>
+          <td class="p-2.5 font-mono font-bold text-emerald-400">₹${d.amount.toFixed(2)}</td>
+          <td class="p-2.5 font-mono text-slate-300 text-[11px]">${d.referenceId}</td>
+          <td class="p-2.5 text-slate-400 text-[11px]">${d.createdAt}</td>
+          <td class="p-2.5">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${
+              d.status === 'Approved' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
+              d.status === 'Pending' ? 'bg-amber-950 text-amber-300 border border-amber-800 animate-pulse' :
+              'bg-red-950 text-red-300 border border-red-800'
+            }">${d.status}</span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // ================= ADMIN DATA CONTROLS ================= //
+
+    // Render Admin Users Table
+    function renderAdminUsers() {
+      const q = (document.getElementById('user-search-input')?.value || '').toLowerCase();
+      const statusF = document.getElementById('user-status-filter')?.value || 'All';
+      const sortF = document.getElementById('user-sort-filter')?.value || 'default';
+
+      let list = STATE.users.filter(u => {
+        const matchesQ = `${u.name} ${u.email} ${u.id}`.toLowerCase().includes(q);
+        const matchesS = statusF === 'All' || u.status === statusF;
+        return matchesQ && matchesS;
+      });
+
+      if (sortF === 'balance-high') list.sort((a,b) => b.balance - a.balance);
+      if (sortF === 'spend-high') list.sort((a,b) => b.spent - a.spent);
+      if (sortF === 'orders-high') list.sort((a,b) => b.orders - a.orders);
+
+      const tbody = document.getElementById('admin-users-tbody');
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500">No users found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(u => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="p-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-slate-200 font-bold flex items-center justify-center text-xs">
+                ${u.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase()}
+              </div>
+              <div>
+                <strong class="text-white block hover:text-amber-400 cursor-pointer" onclick="openInspectModal('${u.id}')">${u.name}</strong>
+                <span class="text-slate-400 font-mono text-[11px]">${u.id} · ${u.email}</span>
+              </div>
+            </div>
+          </td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${u.role === 'Admin' ? 'bg-amber-950 text-amber-300 border border-amber-800' : 'bg-slate-800 text-slate-300'}">
+              ${u.role}
+            </span>
+          </td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${u.status === 'Active' ? 'text-emerald-400' : 'text-red-400'}">
+              ● ${u.status}
+            </span>
+          </td>
+          <td class="p-3 font-mono font-bold text-emerald-400">₹${u.balance.toFixed(2)}</td>
+          <td class="p-3 font-mono">${u.orders}</td>
+          <td class="p-3 font-mono">₹${u.spent.toFixed(2)}</td>
+          <td class="p-3 text-right">
+            <button onclick="openInspectModal('${u.id}')" class="bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-[11px] px-2.5 py-1 rounded border border-blue-500/30 transition">
+              Inspect Data
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Update KPI
+      const totalBalances = STATE.users.reduce((sum,u)=>sum+u.balance,0);
+      const totalSpend = STATE.users.reduce((sum,u)=>sum+u.spent,0);
+      document.getElementById('kpi-total-users').innerText = STATE.users.length;
+      document.getElementById('kpi-total-balances').innerText = `₹${totalBalances.toFixed(2)}`;
+      document.getElementById('kpi-total-spend').innerText = `₹${totalSpend.toFixed(2)}`;
+    }
+
+    // Inspect User Modal
+    function openInspectModal(userId) {
+      const user = STATE.users.find(u => u.id === userId);
+      if (!user) return;
+      STATE.selectedInspectUser = user;
+
+      document.getElementById('inspect-name').innerText = user.name;
+      document.getElementById('inspect-email').innerText = `${user.id} · ${user.email} · Phone: ${user.phone || 'N/A'}`;
+      document.getElementById('inspect-avatar').innerText = user.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+      document.getElementById('inspect-kpi-balance').innerText = `₹${user.balance.toFixed(2)}`;
+      document.getElementById('inspect-kpi-spent').innerText = `₹${user.spent.toFixed(2)}`;
+      document.getElementById('inspect-kpi-orders').innerText = user.orders;
+
+      document.getElementById('modal-inspect-user').classList.remove('hidden');
+    }
+
+    function closeInspectModal() {
+      document.getElementById('modal-inspect-user').classList.add('hidden');
+      STATE.selectedInspectUser = null;
+    }
+
+    function setAdjustType(type) {
+      STATE.adjustType = type;
+      if (type === 'Credit') {
+        document.getElementById('btn-adj-credit').className = 'flex-1 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold';
+        document.getElementById('btn-adj-debit').className = 'flex-1 py-1.5 rounded-lg bg-slate-800 text-slate-400 text-xs font-semibold';
+      } else {
+        document.getElementById('btn-adj-credit').className = 'flex-1 py-1.5 rounded-lg bg-slate-800 text-slate-400 text-xs font-semibold';
+        document.getElementById('btn-adj-debit').className = 'flex-1 py-1.5 rounded-lg bg-red-600 text-white text-xs font-semibold';
+      }
+    }
+
+    function applyBalanceAdjustment() {
+      if (!STATE.selectedInspectUser) return;
+      const amt = Number(document.getElementById('inspect-adj-amount').value) || 0;
+      const reason = document.getElementById('inspect-adj-reason').value.trim() || 'Admin Adjustment';
+
+      if (amt <= 0) {
+        showToast('❌ Enter a valid adjustment amount');
+        return;
+      }
+
+      if (STATE.adjustType === 'Credit') {
+        STATE.selectedInspectUser.balance += amt;
+      } else {
+        STATE.selectedInspectUser.balance = Math.max(0, STATE.selectedInspectUser.balance - amt);
+      }
+
+      showToast(`✅ ${STATE.adjustType}ed ₹${amt} to ${STATE.selectedInspectUser.name}'s wallet. (${reason})`);
+      closeInspectModal();
+      renderAllViews();
+    }
+
+    // Add user modal
+    function openAddUserModal() {
+      document.getElementById('modal-add-user').classList.remove('hidden');
+    }
+    function closeAddUserModal() {
+      document.getElementById('modal-add-user').classList.add('hidden');
+    }
+    function handleCreateUser(e) {
+      e.preventDefault();
+      const name = document.getElementById('new-user-name').value.trim();
+      const email = document.getElementById('new-user-email').value.trim();
+      const role = document.getElementById('new-user-role').value;
+      const bal = Number(document.getElementById('new-user-balance').value) || 0;
+      const phone = document.getElementById('new-user-phone').value.trim();
+
+      const newUser = {
+        id: `USR-${Math.floor(100 + Math.random() * 900)}`,
+        name,
+        email,
+        role,
+        status: 'Active',
+        balance: bal,
+        orders: 0,
+        spent: 0,
+        phone
+      };
+
+      STATE.users.push(newUser);
+      closeAddUserModal();
+      showToast(`✅ Created customer account: ${name} (${newUser.id})`);
+      renderAllViews();
+    }
+
+    // Export Users CSV
+    function exportUsersCsv() {
+      const headers = ['User ID', 'Name', 'Email', 'Role', 'Status', 'Balance (INR)', 'Orders', 'Spent (INR)'];
+      const rows = STATE.users.map(u => [u.id, u.name, u.email, u.role, u.status, u.balance, u.orders, u.spent]);
+      const csv = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const encoded = encodeURI(csv);
+      const link = document.createElement('a');
+      link.setAttribute('href', encoded);
+      link.setAttribute('download', `smm_users_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('📥 Customer records exported to CSV!');
+    }
+
+    // ================= ADMIN ALL ORDERS & DISPATCH ================= //
+    function renderAdminOrders() {
+      const tbody = document.getElementById('admin-orders-tbody');
+      tbody.innerHTML = STATE.orders.map(o => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="p-3 font-mono font-bold text-blue-400">${o.id}</td>
+          <td class="p-3">
+            <strong class="text-white block">${o.userName}</strong>
+            <span class="text-slate-400 font-mono text-[10px]">${o.userId}</span>
+          </td>
+          <td class="p-3 font-medium text-slate-200">${o.serviceName}</td>
+          <td class="p-3 text-slate-300 font-mono text-[11px] max-w-[140px] truncate" title="${o.link}">${o.link}</td>
+          <td class="p-3 font-mono">${o.quantity.toLocaleString()}</td>
+          <td class="p-3 font-mono font-bold">₹${o.charge.toFixed(2)}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${
+              o.status === 'Completed' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
+              o.status === 'Processing' ? 'bg-blue-950 text-blue-300 border border-blue-800' :
+              o.status === 'Canceled' ? 'bg-red-950 text-red-300 border border-red-800' : 'bg-slate-800 text-slate-300'
+            }">${o.status}</span>
+          </td>
+          <td class="p-3 text-right">
+            <select onchange="handleAdminChangeStatus('${o.id}', this.value)" class="bg-[#0b0f19] border border-[#22304d] rounded px-2 py-1 text-[11px] text-white focus:outline-none">
+              <option value="Pending" ${o.status==='Pending'?'selected':''}>Pending</option>
+              <option value="Processing" ${o.status==='Processing'?'selected':''}>Processing</option>
+              <option value="Completed" ${o.status==='Completed'?'selected':''}>Completed</option>
+              <option value="Canceled" ${o.status==='Canceled'?'selected':''}>Canceled (Refund)</option>
+            </select>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Status change with AUTO REFUND on cancel!
+    function handleAdminChangeStatus(orderId, nextStatus) {
+      const order = STATE.orders.find(o => o.id === orderId);
+      if (!order) return;
+      const prev = order.status;
+      order.status = nextStatus;
+
+      if (nextStatus === 'Canceled' && prev !== 'Canceled') {
+        // Find customer and refund 100% of charge!
+        const user = STATE.users.find(u => u.id === order.userId);
+        if (user) {
+          user.balance += order.charge;
+          showToast(`💸 Order ${order.id} marked Canceled: ₹${order.charge} automatically refunded to ${user.name}'s wallet!`);
+        }
+      } else {
+        showToast(`Updated ${order.id} status to ${nextStatus}`);
+      }
+
+      renderAllViews();
+    }
+
+    // ================= ADMIN DEPOSIT APPROVALS ================= //
+    function renderAdminDeposits() {
+      const tbody = document.getElementById('admin-deposits-tbody');
+      tbody.innerHTML = STATE.deposits.map(d => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="p-3 font-mono font-bold text-slate-200">${d.id}</td>
+          <td class="p-3">
+            <strong class="text-white block">${d.userName}</strong>
+            <span class="text-slate-400 font-mono text-[10px]">${d.userId}</span>
+          </td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 font-semibold">${d.method}</span></td>
+          <td class="p-3 font-mono font-bold text-emerald-400">₹${d.amount.toFixed(2)}</td>
+          <td class="p-3 font-mono text-slate-200 text-xs">${d.referenceId}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${
+              d.status === 'Approved' ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' :
+              d.status === 'Pending' ? 'bg-amber-950 text-amber-300 border border-amber-800' :
+              'bg-red-950 text-red-300 border border-red-800'
+            }">${d.status}</span>
+          </td>
+          <td class="p-3 text-right">
+            ${d.status === 'Pending' ? `
+              <div class="inline-flex gap-1.5">
+                <button onclick="approveDeposit('${d.id}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-semibold px-2.5 py-1 rounded shadow transition">
+                  ✓ Approve & Credit
+                </button>
+                <button onclick="rejectDeposit('${d.id}')" class="bg-red-600/20 hover:bg-red-600/30 text-red-300 text-[11px] px-2 py-1 rounded border border-red-500/30 transition">
+                  ✕ Reject
+                </button>
+              </div>
+            ` : `<span class="text-slate-500 text-[11px]">Processed</span>`}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function approveDeposit(depId) {
+      const dep = STATE.deposits.find(d => d.id === depId);
+      if (!dep) return;
+      dep.status = 'Approved';
+
+      // Find user and credit their wallet!
+      const user = STATE.users.find(u => u.id === dep.userId);
+      if (user) {
+        user.balance += dep.amount;
+        showToast(`🎉 Approved! Credited ₹${dep.amount} to ${user.name}'s wallet.`);
+      }
+
+      renderAllViews();
+    }
+
+    function rejectDeposit(depId) {
+      const dep = STATE.deposits.find(d => d.id === depId);
+      if (!dep) return;
+      dep.status = 'Rejected';
+      showToast(`Rejected deposit request ${dep.id}`);
+      renderAllViews();
+    }
+
+    function saveGatewaySettings() {
+      showToast('✅ Payment gateway settings saved successfully.');
+    }
+
+    function testApiPing() {
+      const btn = document.getElementById('btn-ping');
+      btn.innerText = '⚡ Pinging API v2...';
+      setTimeout(() => {
+        btn.innerText = '⚡ Ping: 114ms (Wholesale: $241.80)';
+        showToast('✅ Provider API Connection Healthy! Latency: 114ms');
+      }, 700);
+    }
+
+    function syncServicesCatalog() {
+      showToast('🔄 Synchronized 4 catalog services with JustData provider API.');
+    }
+
+    // Toast helper
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3500);
+    }
+
+    // Initialize
+    calculateOrderCharge();
+    renderAllViews();
+  </script>
+
+<!-- USER FIRST-LOGIN ONBOARDING -->
+<div id="first-login-guide" class="fixed inset-0 z-[9999] hidden bg-black/75 backdrop-blur-sm">
+  <div class="min-h-full flex items-center justify-center p-4">
+    <div class="w-full max-w-lg rounded-2xl border border-fuchsia-500/30 bg-[#111827] shadow-2xl overflow-hidden">
+      <div class="p-6 bg-gradient-to-r from-fuchsia-600/20 to-cyan-500/10 border-b border-slate-700">
+        <div class="text-xs uppercase tracking-widest text-fuchsia-300 font-bold">Welcome</div>
+        <h2 class="text-2xl font-black text-white mt-1">Let's get you started 🚀</h2>
+        <p class="text-sm text-slate-400 mt-2">A quick guide before you place your first order.</p>
+      </div>
+      <div class="p-6 space-y-3">
+        <div class="flex gap-3 rounded-xl bg-slate-900/70 p-4">
+          <div class="text-xl">💰</div><div><b class="text-white">1. Add Funds</b><p class="text-xs text-slate-400 mt-1">Add at least ₹50 to your wallet before placing an order.</p></div>
+        </div>
+        <div class="flex gap-3 rounded-xl bg-slate-900/70 p-4">
+          <div class="text-xl">🛒</div><div><b class="text-white">2. Place an Order</b><p class="text-xs text-slate-400 mt-1">Choose a service, enter the link and quantity, then submit.</p></div>
+        </div>
+        <div class="flex gap-3 rounded-xl bg-slate-900/70 p-4">
+          <div class="text-xl">🎁</div><div><b class="text-white">3. Referral Reward</b><p class="text-xs text-slate-400 mt-1">A referral counts when your referred user makes their first deposit. Reward: ₹100 per qualifying referral.</p></div>
+        </div>
+        <div class="flex gap-3 rounded-xl bg-slate-900/70 p-4">
+          <div class="text-xl">🔐</div><div><b class="text-white">4. Keep Your Account Safe</b><p class="text-xs text-slate-400 mt-1">Never share your password or payment credentials.</p></div>
+        </div>
+      </div>
+      <div class="px-6 pb-6">
+        <button onclick="closeFirstLoginGuide()" class="w-full rounded-xl bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold py-3 transition">Got it — Open Dashboard</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const KEY='smm_user_session';
+  const FIRST='smm_first_login_seen';
+
+  window.closeFirstLoginGuide=function(){
+    const el=document.getElementById('first-login-guide');
+    if(el) el.classList.add('hidden');
+    localStorage.setItem(FIRST,'1');
+  };
+
+  function requireUserLogin(){
+    const session=localStorage.getItem(KEY);
+    if(!session){
+      window.location.replace('user_login.html');
+      return false;
+    }
+    return true;
+  }
+
+  window.addEventListener('DOMContentLoaded', function(){
+    if(!requireUserLogin()) return;
+    if(!localStorage.getItem(FIRST)){
+      const el=document.getElementById('first-login-guide');
+      if(el) el.classList.remove('hidden');
+    }
+  });
+
+  window.userLogout=function(){
+    localStorage.removeItem(KEY);
+    localStorage.removeItem(FIRST);
+    window.location.replace('user_login.html');
+  };
+})();
+</script>
+
+
+<!-- Floating Customer Support Buttons -->
+<div id="support-buttons"
+     style="position:fixed;right:20px;bottom:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;">
+  <a href="https://wa.me/919999999999"
+     target="_blank" rel="noopener noreferrer"
+     aria-label="Chat with us on WhatsApp"
+     style="display:flex;align-items:center;gap:9px;padding:12px 16px;border-radius:999px;background:#25D366;color:white;text-decoration:none;font:600 14px/1.1 Arial,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.18);">
+    <span style="font-size:20px;">◉</span>
+    <span>WhatsApp Chat</span>
+  </a>
+</div>
+
+
+<!-- Customer Support -->
+<section class="support-section" id="customer-support">
+  <h3>💬 Need Help?</h3>
+  <p>Chat with our support team directly on WhatsApp or Telegram.</p>
+  <div class="support-actions">
+    <a class="support-btn support-wa"
+       href="https://wa.me/919999999999"
+       target="_blank" rel="noopener noreferrer">
+      <span class="support-icon">◉</span> WhatsApp Chat
+    </a>
+  </div>
+</section>
+
+</body>
+</html>
